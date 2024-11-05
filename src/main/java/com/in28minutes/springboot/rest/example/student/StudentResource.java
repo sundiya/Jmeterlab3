@@ -19,16 +19,16 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class StudentResource {
 
     @Autowired
-    private StudentRepository studentRepository;
+    private StudentService studentService;
 
     @GetMapping("/students")
     public List<Student> retrieveAllStudents() {
-        return studentRepository.findAll();
+        return studentService.retrieveAllStudents();
     }
 
     @GetMapping("/students/{id}")
     public Student retrieveStudent(@PathVariable long id) {
-        Optional<Student> student = studentRepository.findById(id);
+        Optional<Student> student = studentService.retrieveStudent(id);
 
         if (student.isEmpty())
             throw new StudentNotFoundException("id-" + id);
@@ -38,36 +38,30 @@ public class StudentResource {
 
     @DeleteMapping("/students/{id}")
     public void deleteStudent(@PathVariable long id) {
-        studentRepository.deleteById(id);
+        studentService.deleteStudent(id);
     }
 
     @PostMapping("/students")
     public ResponseEntity<Object> createStudent(@RequestBody Student student) {
-        Student savedStudent = studentRepository.save(student);
+        Student savedStudent = studentService.createStudent(student);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(savedStudent.getId())
                 .toUri();
 
-        return ResponseEntity.created(location)
-                .build();
-
+        return ResponseEntity.created(location).build();
     }
 
     @PutMapping("/students/{id}")
     public ResponseEntity<Object> updateStudent(@RequestBody Student student, @PathVariable long id) {
-
-        Optional<Student> studentOptional = studentRepository.findById(id);
+        Optional<Student> studentOptional = studentService.retrieveStudent(id);
 
         if (studentOptional.isEmpty())
             return ResponseEntity.notFound().build();
 
-        student.setId(id);
+        studentService.updateStudent(id, student);
 
-        studentRepository.save(student);
-
-        return ResponseEntity.noContent()
-                .build();
+        return ResponseEntity.noContent().build();
     }
 }
