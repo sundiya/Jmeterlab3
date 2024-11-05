@@ -1,0 +1,37 @@
+spring:
+  shardingsphere:
+    dataSources:
+      db_student1:
+        type: org.apache.commons.dbcp.BasicDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/db_student1
+        username: root
+        password: 123456
+      db_student2:
+        type: org.apache.commons.dbcp.BasicDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/db_student2
+        username: root
+        password: 123456
+      db_student3:
+        type: org.apache.commons.dbcp.BasicDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/db_student3
+        username: root
+        password: 123456
+    jpa:
+      hibernate:
+        ddl-auto: update  # 设置为 'update' 会根据实体类自动创建或更新表
+        show-sql: true    # 设置为 'true' 会在控制台打印 SQL 语句
+    shardingRule:
+      tables:
+        student:
+          actualDataNodes: db_student${0..2}.student_${'A'..'Z'}  # 实际数据节点：三个数据库中的26个表
+          databaseStrategy:
+            inline:
+              shardingColumn: name  # 分库的字段
+              algorithmExpression: db_student${(name.charAt(0) - 'A') % 3}  # 计算出使用哪个数据库
+          tableStrategy:
+            inline:
+              shardingColumn: name  # 分表的字段
+              algorithmExpression: student_${name.charAt(0).toUpperCase()}  # 根据首字母创建表名
