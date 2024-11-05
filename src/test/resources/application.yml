@@ -2,32 +2,47 @@ spring:
   shardingsphere:
     dataSources:
       db_student1:
-        type: org.apache.commons.dbcp.BasicDataSource
+        type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
         url: jdbc:mysql://localhost:3306/db_student1
         username: root
         password: 123456
+        maximumPoolSize: 10  # 可根据需求调整连接池大小
+        minimumIdle: 2       # 最小空闲连接数
+        idleTimeout: 30000   # 空闲连接最大存活时间（毫秒）
+        connectionTimeout: 30000  # 获取连接的最大等待时间（毫秒）
+        maxLifetime: 1800000 # 连接的最大生命周期（毫秒）
       db_student2:
-        type: org.apache.commons.dbcp.BasicDataSource
+        type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
         url: jdbc:mysql://localhost:3306/db_student2
         username: root
         password: 123456
+        maximumPoolSize: 10
+        minimumIdle: 2
+        idleTimeout: 30000
+        connectionTimeout: 30000
+        maxLifetime: 1800000
       db_student3:
-        type: org.apache.commons.dbcp.BasicDataSource
+        type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
         url: jdbc:mysql://localhost:3306/db_student3
         username: root
         password: 123456
+        maximumPoolSize: 10
+        minimumIdle: 2
+        idleTimeout: 30000
+        connectionTimeout: 30000
+        maxLifetime: 1800000
     jpa:
       show-sql: true
       properties:
-         hibernate:
+        hibernate:
           format_sql: true
     shardingRule:
       tables:
         student:
-          actualDataNodes: db_student${0..2}.student_${'a'..'z'}  # 实际数据节点：三个数据库中的26个表
+          actualDataNodes: db_student${0..2}.student_${'A'..'Z'}  # 实际数据节点：三个数据库中的26个表
           databaseStrategy:
             inline:
               shardingColumn: name  # 分库的字段
@@ -36,8 +51,3 @@ spring:
             inline:
               shardingColumn: name  # 分表的字段
               algorithmExpression: student_${name.charAt(0).toUpperCase()}  # 根据首字母创建表名
-  data:
-    redis:
-      port: 6379
-      host: localhost
-
